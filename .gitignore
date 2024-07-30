@@ -6,3 +6,6 @@ tmp/
 
 /images/
 /dist/
+*.img
+*.img.xz
+*.img.gz
