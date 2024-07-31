@@ -16,8 +16,9 @@ IMAGE=${1:=2024-07-04-raspios-bookworm-arm64-lite.img}
 BASE=$( basename $IMAGE .img )
 TARGET=seestar_alp_${BASE}_$(date +"%Y%m%d").img
 SETUP=setup_unified.sh
+BUILD=build.sh
 
-/bin/rm -f $TARGET
+/bin/rm -f $TARGET $SETUP $BUILD.sh
 
 if [[ ! -e $IMAGE ]]; then
     echo "$IMAGE not found"
@@ -25,7 +26,8 @@ if [[ ! -e $IMAGE ]]; then
 fi
 
 wget https://raw.githubusercontent.com/smart-underworld/seestar_alp/main/raspberry_pi/${SETUP}
-chmod 755 ${SETUP}
+cat prep-ssc.sh $SETUP > $BUILD
+chmod 755 $BUILD
 
 sudo sdm --extend --xmb 4096 $IMAGE
 
@@ -34,8 +36,7 @@ sudo sdm \
     --expand-root \
     --plugin L10n:host \
     --plugin disables:piwiz \
-    --plugin runscript:"runphase=post-install|dir=/home/pi|script=prep-ssc.sh|user=pi" \
-    --plugin runscript:"runphase=post-install|dir=/home/pi|script=${SETUP}|user=pi" \
+    --plugin runscript:"runphase=post-install|dir=/home/pi|script=${BUILD}|user=pi" \
     --regen-ssh-host-keys \
     --restart $IMAGE
 
